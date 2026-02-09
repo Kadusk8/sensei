@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Using Zinc colors for that "High-Performance Dark" look */
+    /* background: zinc-950 #09090b */
+    --background: 240 10% 3.9%;
+
+    /* foreground: zinc-50 #fafafa -> adjusted to "text-zinc-100" mostly */
+    --foreground: 0 0% 98%;
+
+    /* card: zinc-900 #18181b */
+    --card: 240 10% 10%;
+    /* #18181b */
+    --card-foreground: 0 0% 98%;
+
+    /* popover: zinc-900 */
+    --popover: 240 10% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* primary: Red-600 #DC2626 -> 0 72% 51% (Converted approx check: HSL) */
+    /* #DC2626 is Hue 0 approx (red), Saturation high, Lightness around 50% */
+    /* HSL for #DC2626 is 0 72.2% 50.6% */
+    --primary: 0 72.2% 50.6%;
+    --primary-foreground: 0 0% 98%;
+
+    /* secondary: zinc-800 #27272a */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    /* muted: zinc-800 or slightly lighter */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* accent: zinc-800 */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    /* destructive: red-900 or similar */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* border: zinc-800 */
+    --border: 240 3.7% 15.9%;
+
+    /* input: zinc-800 */
+    --input: 240 3.7% 15.9%;
+
+    /* ring: red-600 */
+    --ring: 0 72.2% 50.6%;
+
+    --radius: 0.75rem;
+    /* rounded-xl */
+  }
+}
+
+@layer base {
+  * {
+    /* @apply border-border; */
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
