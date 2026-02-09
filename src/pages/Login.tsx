@@ -5,7 +5,6 @@ import { Dumbbell, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -16,32 +15,17 @@ export function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleAuth = async (isSignUp: boolean) => {
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
         setLoading(true);
         setError(null);
         try {
-            if (isSignUp) {
-                const { error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: {
-                            full_name: email.split('@')[0], // Default name
-                            role: 'admin', // Default role for testing
-                        }
-                    }
-                });
-                if (error) throw error;
-                // Auto login happens if email confirmation is disabled, otherwise let user know
-                alert('Conta criada! Se necessário, verifique seu email.');
-            } else {
-                const { error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
-                if (error) throw error;
-                navigate('/');
-            }
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) throw error;
+            navigate('/');
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'An unknown error occurred';
             setError(message === 'Invalid login credentials'
@@ -65,20 +49,15 @@ export function Login() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue="login" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 bg-zinc-800">
-                            <TabsTrigger value="login">Entrar</TabsTrigger>
-                            <TabsTrigger value="register">Criar Conta</TabsTrigger>
-                        </TabsList>
-
+                    <form onSubmit={handleLogin} className="space-y-4">
                         {error && (
-                            <Alert variant="destructive" className="mt-4 bg-red-900/20 border-red-900/50">
+                            <Alert variant="destructive" className="bg-red-900/20 border-red-900/50">
                                 <AlertCircle className="h-4 w-4" />
                                 <AlertDescription>{error}</AlertDescription>
                             </Alert>
                         )}
 
-                        <div className="mt-4 space-y-4">
+                        <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input
@@ -88,6 +67,7 @@ export function Login() {
                                     className="bg-zinc-800 border-zinc-700 text-white"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
                             <div className="space-y-2">
@@ -98,33 +78,20 @@ export function Login() {
                                     className="bg-zinc-800 border-zinc-700 text-white"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
 
-                        <TabsContent value="login" className="mt-4">
-                            <Button
-                                className="w-full"
-                                onClick={() => handleAuth(false)}
-                                disabled={loading}
-                            >
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Acessar Painel
-                            </Button>
-                        </TabsContent>
-
-                        <TabsContent value="register" className="mt-4">
-                            <Button
-                                className="w-full"
-                                onClick={() => handleAuth(true)}
-                                disabled={loading}
-                                variant="secondary"
-                            >
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Criar Nova Conta
-                            </Button>
-                        </TabsContent>
-                    </Tabs>
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={loading}
+                        >
+                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Acessar Painel
+                        </Button>
+                    </form>
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     <p className="text-xs text-zinc-500">
