@@ -28,7 +28,7 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
     if (!isVisible && !isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <div className="fixed inset-0 z-40 flex justify-end">
             {/* Backdrop */}
             <div
                 className={cn(
