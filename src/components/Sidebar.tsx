@@ -50,7 +50,7 @@ export function Sidebar() {
             </nav>
 
             <div className="w-full px-4 mt-auto space-y-2">
-                {role !== 'professor' && (
+                {role === 'admin' && (
                     <NavLink
                         to="/settings"
                         className={({ isActive }) =>

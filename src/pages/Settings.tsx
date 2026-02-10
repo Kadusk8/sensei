@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Database } from 'lucide-react';
 import { PlanList } from '@/components/settings/PlanList';
 import { ProfessorList } from '@/components/settings/ProfessorList';
@@ -8,6 +11,17 @@ import { AutomationSettings } from '@/components/settings/AutomationSettings';
 import { GymInfoSettings } from '@/components/settings/GymInfoSettings';
 
 export function Settings() {
+    const { role, loading } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!loading && role !== 'admin') {
+            navigate('/');
+        }
+    }, [role, loading, navigate]);
+
+    if (loading) return null;
+
     return (
         <div className="p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center gap-4">

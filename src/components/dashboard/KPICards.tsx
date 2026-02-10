@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, AlertCircle, UserCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export function KPICards() {
+    const { role } = useAuth();
     const [stats, setStats] = useState({
         activeStudents: 0,
         monthlyRevenue: 0,
@@ -88,9 +90,14 @@ export function KPICards() {
         },
     ];
 
+    const filteredKpiData = kpiData.filter(kpi => {
+        if (role === 'secretary' && kpi.title === 'Receita Mensal') return false;
+        return true;
+    });
+
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {kpiData.map((kpi) => (
+            {filteredKpiData.map((kpi) => (
                 <Card key={kpi.title} className="bg-zinc-900 border-zinc-800">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-zinc-400">
