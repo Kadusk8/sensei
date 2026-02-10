@@ -2,6 +2,9 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 
+import { AddClassModal } from '@/components/classes/AddClassModal';
+import { Plus } from 'lucide-react';
+
 export function Classes() {
     const [selectedDate, setSelectedDate] = React.useState<string>(new Date().toISOString().split('T')[0]);
     const [selectedClassId, setSelectedClassId] = React.useState<string | null>(null);
@@ -10,6 +13,7 @@ export function Classes() {
     const [attendance, setAttendance] = React.useState<Record<string, boolean>>({});
     const [loading, setLoading] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
+    const [isAddClassModalOpen, setIsAddClassModalOpen] = React.useState(false);
 
     React.useEffect(() => {
         fetchClasses();
@@ -112,6 +116,10 @@ export function Classes() {
                         onChange={(e) => setSelectedDate(e.target.value)}
                         className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-white"
                     />
+                    <Button onClick={() => setIsAddClassModalOpen(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+                        <Plus size={16} />
+                        Nova Turma
+                    </Button>
                 </div>
             </div>
 
@@ -199,6 +207,14 @@ export function Classes() {
                     )}
                 </div>
             </div>
+            <AddClassModal
+                isOpen={isAddClassModalOpen}
+                onClose={() => setIsAddClassModalOpen(false)}
+                onSuccess={() => {
+                    fetchClasses();
+                    setIsAddClassModalOpen(false);
+                }}
+            />
         </div>
     );
 }
