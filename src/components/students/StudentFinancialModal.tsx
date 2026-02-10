@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Plus, Wallet } from 'lucide-react';
@@ -55,7 +55,7 @@ export function StudentFinancialModal({ isOpen, onClose, student }: StudentFinan
     const markAsPaid = async (transaction: any) => {
         if (!confirm('Confirmar pagamento?')) return;
         try {
-            const { error } = await supabase
+            const { error } = await (supabase as any)
                 .from('transactions')
                 .update({ status: 'paid' })
                 .eq('id', transaction.id);
