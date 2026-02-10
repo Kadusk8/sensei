@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useStudents } from '@/hooks/useStudents';
 import { AddStudentModal as EditModalWrapper } from './AddStudentModal';
 import { GraduationModal } from './GraduationModal';
+import { StudentFinancialModal } from './StudentFinancialModal';
 
 import { EvolutionService } from '@/services/whatsapp';
 import { supabase } from '@/lib/supabase';
@@ -36,6 +37,9 @@ export function StudentList() {
     const [isGraduationModalOpen, setIsGraduationModalOpen] = useState(false);
     const [studentToGraduate, setStudentToGraduate] = useState<any | null>(null);
     const [attendanceStats, setAttendanceStats] = useState({ count: 0, loading: false });
+
+    const [studentForFinancial, setStudentForFinancial] = useState<any | null>(null);
+    const [isFinancialModalOpen, setIsFinancialModalOpen] = useState(false);
 
     React.useEffect(() => {
         if (selectedStudent?.id) {
@@ -262,7 +266,12 @@ export function StudentList() {
 
                         {/* Actions */}
                         <div className="grid grid-cols-2 gap-3">
-                            <Button className="w-full" variant="secondary"><Wallet className="mr-2 h-4 w-4" /> Financeiro</Button>
+                            <Button className="w-full" variant="secondary" onClick={() => {
+                                setStudentForFinancial(selectedStudent);
+                                setIsFinancialModalOpen(true);
+                            }}>
+                                <Wallet className="mr-2 h-4 w-4" /> Financeiro
+                            </Button>
                             <Button className="w-full" variant="outline" onClick={() => {
                                 // Create a synthetic event or just pass null if handleEdit supports it, 
                                 // but based on viewing, handleEdit calls e.stopPropagation()
@@ -348,6 +357,12 @@ export function StudentList() {
                     }}
                 />
             )}
+
+            <StudentFinancialModal
+                isOpen={isFinancialModalOpen}
+                onClose={() => setIsFinancialModalOpen(false)}
+                student={studentForFinancial}
+            />
         </>
     );
 }

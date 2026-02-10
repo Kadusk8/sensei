@@ -15,9 +15,11 @@ interface AddTransactionModalProps {
     onClose: () => void;
     onSuccess: () => void;
     transactionToEdit?: any | null;
+    initialStudentId?: string;
+    initialDescription?: string;
 }
 
-export function AddTransactionModal({ isOpen, onClose, onSuccess, transactionToEdit }: AddTransactionModalProps) {
+export function AddTransactionModal({ isOpen, onClose, onSuccess, transactionToEdit, initialStudentId, initialDescription }: AddTransactionModalProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         description: '',
@@ -57,17 +59,17 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess, transactionToE
             setIsRecurring(false); // Disable recurring for edit mode for now
         } else if (isOpen) {
             setFormData({
-                description: '',
-                smartCategory: 'Outros',
+                description: initialDescription || '',
+                smartCategory: 'Mensalidade',
                 amount: '',
-                type: 'expense',
+                type: 'income', // Default to income for student charges
                 status: 'pending',
                 date: new Date().toISOString().split('T')[0]
             });
             setIsRecurring(false);
             setRepeatCount('12');
         }
-    }, [isOpen, transactionToEdit]);
+    }, [isOpen, transactionToEdit, initialDescription]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -106,7 +108,8 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess, transactionToE
                         type: formData.type,
                         status: formData.status,
                         created_at: new Date(formData.date + 'T12:00:00').toISOString(),
-                        due_date: formData.date
+                        due_date: formData.date,
+                        related_user_id: initialStudentId || null
                     }]);
                     if (error) throw error;
                 }

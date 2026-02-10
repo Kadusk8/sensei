@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -596,6 +598,15 @@ export function Financial() {
     const [dateRange, setDateRange] = useState({ start: startOfMonth(new Date()), end: endOfMonth(new Date()) });
     const [fixedExpenses, setFixedExpenses] = useState<any[]>([]);
 
+    const { role, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!authLoading && role !== 'admin' && role !== 'secretary') {
+            navigate('/');
+        }
+    }, [role, authLoading, navigate]);
+
     useEffect(() => {
         const calculateDateRange = () => {
 
@@ -997,10 +1008,28 @@ export function Financial() {
         }
     };
 
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full pt-20">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    // Restricted View for Secretary
+    if (role === 'secretary') {
+        return (
+            <div className="space-y-6 pt-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-3xl font-bold tracking-tight text-white">Financeiro (Restrito)</h2>
+                </div>
+                <div className="h-[calc(100vh-200px)]">
+                    <AccountsReceivableList
+                        transactions={[...ghostIncomeTransactions]}
+                        onReceive={handleReceiveStudentPayment}
+                    />
+                </div>
             </div>
         );
     }

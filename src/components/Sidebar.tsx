@@ -9,7 +9,7 @@ const navItems = [
     { icon: LayoutDashboard, label: 'Painel', path: '/', roles: ['admin', 'secretary', 'professor'] },
     { icon: Users, label: 'Alunos', path: '/students', roles: ['admin', 'secretary', 'professor'] },
     { icon: CalendarDays, label: 'Aulas', path: '/classes', roles: ['admin', 'secretary', 'professor'] },
-    { icon: Wallet, label: 'Financeiro', path: '/financial', roles: ['admin'] },
+    { icon: Wallet, label: 'Financeiro', path: '/financial', roles: ['admin', 'secretary'] },
     { icon: ShoppingCart, label: 'PDV', path: '/pdv', roles: ['admin', 'secretary'] },
 ];
 
