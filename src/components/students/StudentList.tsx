@@ -3,12 +3,13 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Drawer } from '@/components/ui/drawer';
-import { Search, Filter, Swords, Wallet, MessageSquare } from 'lucide-react';
+import { Search, Filter, Swords, Wallet, MessageSquare, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useStudents } from '@/hooks/useStudents';
 import { AddStudentModal as EditModalWrapper } from './AddStudentModal';
 import { GraduationModal } from './GraduationModal';
 import { StudentFinancialModal } from './StudentFinancialModal';
+import { AsaasSubscriptionModal } from './AsaasSubscriptionModal';
 
 import { EvolutionService } from '@/services/whatsapp';
 import { supabase } from '@/lib/supabase';
@@ -40,6 +41,8 @@ export function StudentList() {
 
     const [studentForFinancial, setStudentForFinancial] = useState<any | null>(null);
     const [isFinancialModalOpen, setIsFinancialModalOpen] = useState(false);
+    const [studentForAsaas, setStudentForAsaas] = useState<any | null>(null);
+    const [isAsaasModalOpen, setIsAsaasModalOpen] = useState(false);
 
     React.useEffect(() => {
         if (selectedStudent?.id) {
@@ -285,6 +288,15 @@ export function StudentList() {
                             }}>
                                 <Swords className="mr-2 h-4 w-4" /> Graduar
                             </Button>
+                            <Button
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => {
+                                    setStudentForAsaas(selectedStudent);
+                                    setIsAsaasModalOpen(true);
+                                }}
+                            >
+                                <CreditCard className="mr-2 h-4 w-4" /> Cobrar Asaas
+                            </Button>
 
                             {/* WhatsApp Action */}
                             <Button
@@ -362,6 +374,13 @@ export function StudentList() {
                 isOpen={isFinancialModalOpen}
                 onClose={() => setIsFinancialModalOpen(false)}
                 student={studentForFinancial}
+            />
+
+            <AsaasSubscriptionModal
+                isOpen={isAsaasModalOpen}
+                onClose={() => { setIsAsaasModalOpen(false); setStudentForAsaas(null); }}
+                student={studentForAsaas}
+                onSuccess={() => refetch()}
             />
         </>
     );
