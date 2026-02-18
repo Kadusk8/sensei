@@ -738,6 +738,7 @@ export function Financial() {
         const { data: sessions } = await supabase
             .from('class_sessions')
             .select('professor_id')
+            .eq('professor_present', true)
             .gte('date', start)
             .lte('date', end)
             .returns<{ professor_id: string }[]>();

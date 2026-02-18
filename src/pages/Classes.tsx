@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { AddClassModal } from '@/components/classes/AddClassModal';
-import { Plus, ShieldCheck, UserCog } from 'lucide-react';
+import { Plus, ShieldCheck, UserCog, Pencil, Trash2 } from 'lucide-react';
 
 export function Classes() {
     const [selectedDate, setSelectedDate] = React.useState<string>(new Date().toISOString().split('T')[0]);
@@ -19,6 +19,7 @@ export function Classes() {
     const [loading, setLoading] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
     const [isAddClassModalOpen, setIsAddClassModalOpen] = React.useState(false);
+    const [classToEdit, setClassToEdit] = React.useState<any | null>(null);
 
     React.useEffect(() => {
         fetchClasses();
@@ -167,15 +168,48 @@ export function Classes() {
                     <h3 className="text-lg font-medium text-zinc-400">Turmas</h3>
                     <div className="flex flex-col gap-2">
                         {classes.map(cls => (
-                            <Button
-                                key={cls.id}
-                                variant={selectedClassId === cls.id ? "default" : "outline"}
-                                className={`justify-start ${selectedClassId === cls.id ? 'bg-primary text-primary-foreground' : 'text-zinc-400 border-zinc-800 hover:bg-zinc-800'}`}
-                                onClick={() => setSelectedClassId(cls.id)}
-                            >
-                                {cls.name}
-                                <span className="ml-auto text-xs opacity-50">{cls.schedule_time}</span>
-                            </Button>
+                            <div key={cls.id} className="flex items-center gap-1">
+                                <Button
+                                    variant={selectedClassId === cls.id ? "default" : "outline"}
+                                    className={`flex-1 justify-start ${selectedClassId === cls.id ? 'bg-primary text-primary-foreground' : 'text-zinc-400 border-zinc-800 hover:bg-zinc-800'}`}
+                                    onClick={() => setSelectedClassId(cls.id)}
+                                >
+                                    {cls.name}
+                                    <span className="ml-auto text-xs opacity-50">{cls.schedule_time?.slice(0, 5)}</span>
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-zinc-500 hover:text-white shrink-0"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setClassToEdit(cls);
+                                        setIsAddClassModalOpen(true);
+                                    }}
+                                    title="Editar turma"
+                                >
+                                    <Pencil size={14} />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-zinc-500 hover:text-red-500 shrink-0"
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        if (!confirm(`Excluir turma "${cls.name}"?`)) return;
+                                        const { error } = await supabase.from('classes').delete().eq('id', cls.id);
+                                        if (error) {
+                                            alert('Erro ao excluir: ' + error.message);
+                                        } else {
+                                            fetchClasses();
+                                            if (selectedClassId === cls.id) setSelectedClassId(null);
+                                        }
+                                    }}
+                                    title="Excluir turma"
+                                >
+                                    <Trash2 size={14} />
+                                </Button>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -285,11 +319,16 @@ export function Classes() {
             </div>
             <AddClassModal
                 isOpen={isAddClassModalOpen}
-                onClose={() => setIsAddClassModalOpen(false)}
+                onClose={() => {
+                    setIsAddClassModalOpen(false);
+                    setClassToEdit(null);
+                }}
                 onSuccess={() => {
                     fetchClasses();
                     setIsAddClassModalOpen(false);
+                    setClassToEdit(null);
                 }}
+                classToEdit={classToEdit}
             />
         </div>
     );
