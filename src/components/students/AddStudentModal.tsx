@@ -22,6 +22,8 @@ interface AddStudentModalProps {
 export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, whatsappService, instanceName }: AddStudentModalProps) {
     const [loading, setLoading] = useState(false);
     const [full_name, setFullName] = useState('');
+    const [cpf, setCpf] = useState('');
+    const [email, setEmail] = useState('');
     const [plan_id, setPlanId] = useState<string>('');
     const [modality, setModality] = useState('');
     const [phone, setPhone] = useState('');
@@ -43,6 +45,8 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
             fetchData();
             if (studentToEdit) {
                 setFullName(studentToEdit.full_name);
+                setCpf(studentToEdit.cpf || '');
+                setEmail(studentToEdit.email || '');
                 setPlanId(studentToEdit.plan_id || '');
                 setModality(studentToEdit.modality || '');
                 setPhone(studentToEdit.phone || '');
@@ -79,6 +83,8 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
 
     function resetForm() {
         setFullName('');
+        setCpf('');
+        setEmail('');
         setPlanId('');
         setModality('');
         setPhone('');
@@ -127,6 +133,8 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
             if (studentToEdit) {
                 const { error } = await (supabase.from('students') as any).update({
                     full_name,
+                    cpf: cpf || null,
+                    email: email || null,
                     plan_id: plan_id || null,
                     modality: modality || null,
                     phone: phone || null,
@@ -142,6 +150,8 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
                 const { error } = await (supabase.from('students') as any).insert([
                     {
                         full_name,
+                        cpf: cpf || null,
+                        email: email || null,
                         plan_id: plan_id || null,
                         status: 'active',
                         modality: modality || null,
@@ -263,6 +273,37 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
                             className="bg-zinc-800 border-zinc-700 text-white"
                             required
                         />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="cpf">CPF</Label>
+                            <Input
+                                id="cpf"
+                                value={cpf}
+                                onChange={(e) => {
+                                    // Format CPF: 000.000.000-00
+                                    let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+                                    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+                                    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+                                    else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+                                    setCpf(v);
+                                }}
+                                className="bg-zinc-800 border-zinc-700 text-white"
+                                placeholder="000.000.000-00"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">E-mail</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="bg-zinc-800 border-zinc-700 text-white"
+                                placeholder="email@exemplo.com"
+                            />
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

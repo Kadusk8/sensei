@@ -63,6 +63,7 @@ export interface Database {
                 Row: {
                     id: string
                     full_name: string
+                    cpf: string | null
                     phone: string | null
                     email: string | null
                     avatar_url: string | null
@@ -76,6 +77,7 @@ export interface Database {
                 Insert: {
                     id?: string
                     full_name: string
+                    cpf?: string | null
                     phone?: string | null
                     email?: string | null
                     avatar_url?: string | null
@@ -88,6 +90,7 @@ export interface Database {
                 Update: {
                     id?: string
                     full_name?: string
+                    cpf?: string | null
                     phone?: string | null
                     email?: string | null
                     avatar_url?: string | null
@@ -286,6 +289,7 @@ export interface Database {
                     class_id: string
                     date: string
                     professor_id: string | null
+                    professor_present: boolean
                     status: 'scheduled' | 'investigating' | 'completed' | 'canceled'
                     notes: string | null
                     created_at: string
@@ -295,6 +299,7 @@ export interface Database {
                     class_id: string
                     date: string
                     professor_id?: string | null
+                    professor_present?: boolean
                     status?: 'scheduled' | 'investigating' | 'completed' | 'canceled'
                     notes?: string | null
                     created_at?: string
@@ -304,6 +309,7 @@ export interface Database {
                     class_id?: string
                     date?: string
                     professor_id?: string | null
+                    professor_present?: boolean
                     status?: 'scheduled' | 'investigating' | 'completed' | 'canceled'
                     notes?: string | null
                     created_at?: string

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/lib/supabase';
-import { Check, X, Search, Calendar, Clock, UserCog } from 'lucide-react';
+import { Check, X, Search, Calendar, Clock, UserCog, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -36,6 +36,7 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
     const [students, setStudents] = useState<Student[]>([]);
     const [professors, setProfessors] = useState<Professor[]>([]);
     const [selectedProfessorId, setSelectedProfessorId] = useState<string | null>(null);
+    const [professorPresent, setProfessorPresent] = useState(false);
     const [presenceMap, setPresenceMap] = useState<Record<string, boolean>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -52,7 +53,7 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
         try {
             const dateStr = format(date, 'yyyy-MM-dd');
 
-            // 1. Fetch Students, Professors, Attendance, and Class Session in parallel-ish
+            // 1. Fetch Students, Professors, Attendance, and Class Session in parallel
             const [
                 { data: studentsData },
                 { data: professorsData },
@@ -63,7 +64,7 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
                 supabase.from('students').select('id, full_name, avatar_url, status').eq('status', 'active').order('full_name'),
                 supabase.from('professors').select('id, full_name').order('full_name'),
                 supabase.from('attendance').select('student_id, present').eq('class_id', classId).eq('date', dateStr),
-                supabase.from('class_sessions').select('professor_id').eq('class_id', classId).eq('date', dateStr).maybeSingle(),
+                supabase.from('class_sessions').select('professor_id, professor_present').eq('class_id', classId).eq('date', dateStr).maybeSingle(),
                 supabase.from('classes').select('professor_id').eq('id', classId).single()
             ]);
 
@@ -77,12 +78,13 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
             });
             setPresenceMap(initialPresence);
 
-            // Set Professor
-            // If session exists (saved previously), use that. Else use default class professor.
+            // Set Professor and professor presence
             if (sessionData?.professor_id) {
                 setSelectedProfessorId(sessionData.professor_id);
+                setProfessorPresent(sessionData.professor_present ?? false);
             } else if (classData?.professor_id) {
                 setSelectedProfessorId(classData.professor_id);
+                setProfessorPresent(false);
             }
 
         } catch (error) {
@@ -105,13 +107,14 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
         try {
             const dateStr = format(date, 'yyyy-MM-dd');
 
-            // 1. Upsert Class Session (Professor for the day)
+            // 1. Upsert Class Session (Professor + presence for the day)
             const { error: sessionError } = await supabase
                 .from('class_sessions')
                 .upsert({
                     class_id: classId,
                     date: dateStr,
                     professor_id: selectedProfessorId,
+                    professor_present: professorPresent,
                     status: 'completed'
                 }, { onConflict: 'class_id,date' });
 
@@ -148,6 +151,7 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
     );
 
     const presentCount = Object.values(presenceMap).filter(Boolean).length;
+    const selectedProfessorName = professors.find(p => p.id === selectedProfessorId)?.full_name;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -173,9 +177,9 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
                         </div>
                     </div>
 
-                    {/* Professor Selector */}
+                    {/* Professor Selector + Presence Toggle */}
                     <div className="flex items-center gap-3 bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50">
-                        <UserCog className="h-5 w-5 text-zinc-400" />
+                        <UserCog className="h-5 w-5 text-zinc-400 shrink-0" />
                         <div className="flex-1">
                             <label className="text-xs text-zinc-500 font-medium ml-1">Professor Responsável</label>
                             <Select
@@ -192,6 +196,22 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        {/* Professor Presence Toggle */}
+                        <div
+                            onClick={() => setProfessorPresent(!professorPresent)}
+                            className={cn(
+                                "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all shrink-0",
+                                professorPresent
+                                    ? "bg-green-500/20 border-green-500/50 text-green-400"
+                                    : "bg-zinc-900 border-zinc-700 text-zinc-500 hover:border-zinc-600"
+                            )}
+                        >
+                            <ShieldCheck className="h-4 w-4" />
+                            <span className="text-xs font-medium">
+                                {professorPresent ? 'Presente' : 'Ausente'}
+                            </span>
                         </div>
                     </div>
 
