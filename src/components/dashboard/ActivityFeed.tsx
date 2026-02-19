@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Activity {
     id: string;
@@ -14,6 +15,7 @@ interface Activity {
 }
 
 export function ActivityFeed() {
+    const { role } = useAuth();
     const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
@@ -35,26 +37,30 @@ export function ActivityFeed() {
                     image: s.avatar_url || `https://ui.shadcn.com/avatars/0${Math.floor(Math.random() * 5) + 1}.png`
                 })) || [];
 
-                // 2. Recent Transactions (Payments)
-                const { data: transactions } = await supabase
-                    .from('transactions')
-                    .select('*, students(full_name)') // Assuming relation, or use related_user_id
-                    .eq('type', 'income')
-                    .order('created_at', { ascending: false })
-                    .limit(5);
+                let transactionActivities: any[] = [];
 
-                // Note: Need to handle the join correctly or just fetch basic info
-                // For simplicity, if join not setup, we skip user name or fetch separately.
-                // Assuming 'category' as target.
+                if (role !== 'professor') {
+                    // 2. Recent Transactions (Payments)
+                    const { data: transactions } = await supabase
+                        .from('transactions')
+                        .select('*, students(full_name)') // Assuming relation, or use related_user_id
+                        .eq('type', 'income')
+                        .order('created_at', { ascending: false })
+                        .limit(5);
 
-                const transactionActivities = (transactions as any[])?.map(t => ({
-                    id: t.id,
-                    user: 'Sistema', // Placeholder or fetch user
-                    action: 'pagamento recebido',
-                    target: t.category,
-                    time: new Date(t.created_at),
-                    image: 'https://placehold.co/100x100/22c55e/ffffff?text=$'
-                })) || [];
+                    // Note: Need to handle the join correctly or just fetch basic info
+                    // For simplicity, if join not setup, we skip user name or fetch separately.
+                    // Assuming 'category' as target.
+
+                    transactionActivities = (transactions as any[])?.map(t => ({
+                        id: t.id,
+                        user: 'Sistema', // Placeholder or fetch user
+                        action: 'pagamento recebido',
+                        target: t.category,
+                        time: new Date(t.created_at),
+                        image: 'https://placehold.co/100x100/22c55e/ffffff?text=$'
+                    })) || [];
+                }
 
                 // Combine and sort
                 const combined = [...studentActivities, ...transactionActivities]
@@ -69,7 +75,7 @@ export function ActivityFeed() {
         }
 
         fetchActivities();
-    }, []);
+    }, [role]);
 
     return (
         <Card className="col-span-3 bg-zinc-900 border-zinc-800">

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Plus, Shield, User, GraduationCap, Loader2 } from 'lucide-react';
+import { Users, Plus, Shield, User, GraduationCap, Loader2, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { AddUserModal } from './AddUserModal';
 
 interface Profile {
@@ -14,6 +15,7 @@ interface Profile {
 }
 
 export function UserList() {
+    const { role: currentUserRole, user: currentUser } = useAuth();
     const [users, setUsers] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -36,6 +38,26 @@ export function UserList() {
             console.error('Error fetching users:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteUser = async (userId: string) => {
+        if (!confirm('Tem certeza que deseja excluir este usuário? O login dele será revogado.')) return;
+
+        try {
+            // Because profiles might just be a table, deleting from profiles won't delete the auth user unless there is a trigger
+            // Usually we either disable them, or if we have an edge function/admin RPC, we call it.
+            // Let's at least delete from profiles, which might trigger auth deletion or just remove access
+            const { error } = await supabase.from('profiles').delete().eq('id', userId);
+
+            if (error) throw error;
+
+            // Re-fetch users
+            fetchUsers();
+            alert('Usuário removido com sucesso!');
+        } catch (error: any) {
+            console.error('Error deleting user:', error);
+            alert('Erro ao excluir usuário: ' + error.message);
         }
     };
 
@@ -100,8 +122,19 @@ export function UserList() {
                                                 <p className="text-xs text-zinc-500 uppercase tracking-wider">{user.role}</p>
                                             </div>
                                         </div>
-                                        <div>
+                                        <div className="flex items-center gap-3">
                                             {getRoleBadge(user.role)}
+                                            {currentUserRole === 'admin' && currentUser?.id !== user.id && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-zinc-500 hover:text-red-500 hover:bg-red-500/10"
+                                                    onClick={() => handleDeleteUser(user.id)}
+                                                    title="Excluir Usuário"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 ))

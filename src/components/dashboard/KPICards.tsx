@@ -91,7 +91,7 @@ export function KPICards() {
     ];
 
     const filteredKpiData = kpiData.filter(kpi => {
-        if (role === 'secretary' && kpi.title === 'Receita Mensal') return false;
+        if ((role === 'secretary' || role === 'professor') && kpi.title === 'Receita Mensal') return false;
         return true;
     });
 

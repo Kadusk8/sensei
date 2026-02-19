@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraduationPanel } from "@/components/students/GraduationPanel";
 
 export function Students() {
-    const { role } = useAuth();
+    const { } = useAuth();
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
     const [refreshKey, setRefreshKey] = React.useState(0);
 
@@ -36,12 +36,10 @@ export function Students() {
                     <h2 className="text-3xl font-bold tracking-tight text-white">Alunos</h2>
                     <p className="text-zinc-400 mt-1">Gerencie os membros da academia e suas frequências.</p>
                 </div>
-                {role !== 'professor' && (
-                    <Button onClick={() => setIsAddModalOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Adicionar Aluno
-                    </Button>
-                )}
+                <Button onClick={() => setIsAddModalOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Adicionar Aluno
+                </Button>
             </div>
 
             <Tabs defaultValue="list" className="space-y-4">
