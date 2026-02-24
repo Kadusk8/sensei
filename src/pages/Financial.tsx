@@ -228,8 +228,8 @@ function FinancialStats({ transactions, recurringRevenue }: { transactions: Tran
 
 function PayrollTable({ payrollData, onPay }: { payrollData: ProfessorPayroll[], onPay: (prof: ProfessorPayroll) => void }) {
     return (
-        <Card className="bg-zinc-900 border-zinc-800 col-span-2">
-            <CardHeader>
+        <Card className="bg-zinc-900 border-zinc-800 col-span-2 h-full flex flex-col overflow-hidden">
+            <CardHeader className="pb-2">
                 <CardTitle className="text-white flex items-center gap-2">
                     <Users className="h-5 w-5" />
                     Folha de Pagamento (Estimativa)
@@ -238,7 +238,7 @@ function PayrollTable({ payrollData, onPay }: { payrollData: ProfessorPayroll[],
                     Calculado com base nas chamadas realizadas este mês.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 overflow-auto pt-0 min-h-0">
                 <div className="rounded-md border border-zinc-800 overflow-hidden">
                     <table className="w-full text-sm">
                         <thead className="bg-zinc-800 text-zinc-400">
@@ -1118,8 +1118,8 @@ export function Financial() {
                         onRefresh={loadAllData}
                     />
 
-                    <div className="grid gap-4 md:grid-cols-4 h-[400px]">
-                        <div className="col-span-2 h-full min-h-0">
+                    <div className="grid gap-4 lg:grid-cols-3 h-[400px]">
+                        <div className="col-span-1 h-full min-h-0">
                             <CashFlowChart
                                 transactions={transactions}
                                 pendingTransactions={pendingTransactions}
