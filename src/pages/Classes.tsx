@@ -171,11 +171,11 @@ export function Classes() {
                             <div key={cls.id} className="flex items-center gap-1">
                                 <Button
                                     variant={selectedClassId === cls.id ? "default" : "outline"}
-                                    className={`flex-1 justify-start ${selectedClassId === cls.id ? 'bg-primary text-primary-foreground' : 'text-zinc-400 border-zinc-800 hover:bg-zinc-800'}`}
+                                    className={`flex-1 justify-start overflow-hidden ${selectedClassId === cls.id ? 'bg-primary text-primary-foreground' : 'text-zinc-400 border-zinc-800 hover:bg-zinc-800'}`}
                                     onClick={() => setSelectedClassId(cls.id)}
                                 >
-                                    {cls.name}
-                                    <span className="ml-auto text-xs opacity-50">{cls.schedule_time?.slice(0, 5)}</span>
+                                    <span className="truncate">{cls.name}</span>
+                                    <span className="ml-auto shrink-0 text-xs opacity-50 pl-2">{cls.schedule_time?.slice(0, 5)}</span>
                                 </Button>
                                 <Button
                                     variant="ghost"
