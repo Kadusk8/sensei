@@ -938,7 +938,7 @@ export function Financial() {
                 category: `Pagamento Professor - ${prof.name}`,
                 amount: prof.estimated_monthly_total,
                 status: 'paid',
-                date: new Date().toISOString(),
+                created_at: new Date().toISOString(),
                 related_user_id: prof.id // Link transaction to professor
             } as any]);
 
