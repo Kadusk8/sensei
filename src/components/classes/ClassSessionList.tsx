@@ -25,9 +25,9 @@ export function ClassSessionList({ selectedDate }: { selectedDate: Date }) {
 
     useEffect(() => {
         fetchClassesForDate();
-    }, [selectedDate]);
+    }, [selectedDate, fetchClassesForDate]);
 
-    const fetchClassesForDate = async () => {
+    const fetchClassesForDate = React.useCallback(async () => {
         setLoading(true);
         try {
             // 1. Fetch all classes
@@ -86,7 +86,7 @@ export function ClassSessionList({ selectedDate }: { selectedDate: Date }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedDate]);
 
     const handleOpenAttendance = (cls: ClassWithDetails) => {
         setSelectedClass(cls);

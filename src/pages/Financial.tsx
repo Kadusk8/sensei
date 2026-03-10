@@ -650,6 +650,7 @@ export function Financial() {
         return () => {
             subTransactions.unsubscribe();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateRange]); // Reload when date range changes
 
     const loadAllData = async () => {

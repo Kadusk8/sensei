@@ -16,6 +16,7 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
 
     useEffect(() => {
         if (isOpen) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsVisible(true);
             document.body.style.overflow = 'hidden';
         } else {

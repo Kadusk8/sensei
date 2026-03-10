@@ -30,23 +30,7 @@ export function AsaasSubscriptionModal({ isOpen, onClose, student, onSuccess }: 
     const [loadingPayments, setLoadingPayments] = useState(false);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        if (isOpen && student) {
-            setStep('form');
-            setError('');
-            setSubscription(null);
-
-            // Set default value from plan
-            if (student.plans?.price) {
-                setValue(String(student.plans.price));
-            }
-
-            // Check for existing subscription
-            loadExistingData();
-        }
-    }, [isOpen, student]);
-
-    const loadExistingData = async () => {
+    const loadExistingData = React.useCallback(async () => {
         if (!student) return;
 
         // Check existing active subscription
@@ -76,7 +60,23 @@ export function AsaasSubscriptionModal({ isOpen, onClose, student, onSuccess }: 
                 setLoadingPayments(false);
             }
         }
-    };
+    }, [student]);
+
+    useEffect(() => {
+        if (isOpen && student) {
+            setStep('form');
+            setError('');
+            setSubscription(null);
+
+            // Set default value from plan
+            if (student.plans?.price) {
+                setValue(String(student.plans.price));
+            }
+
+            // Check for existing subscription
+            loadExistingData();
+        }
+    }, [isOpen, student, loadExistingData]);
 
     const handleCreateSubscription = async () => {
         if (!student || !value) return;

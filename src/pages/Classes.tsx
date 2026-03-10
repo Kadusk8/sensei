@@ -27,12 +27,6 @@ export function Classes() {
         fetchProfessors();
     }, []);
 
-    React.useEffect(() => {
-        if (selectedClassId && selectedDate) {
-            fetchAttendance();
-        }
-    }, [selectedClassId, selectedDate]);
-
     async function fetchClasses() {
         const { data } = await supabase.from('classes').select('*, professor:professors(*)').order('name');
         if (data) setClasses(data);
@@ -48,7 +42,7 @@ export function Classes() {
         if (data) setProfessors(data);
     }
 
-    async function fetchAttendance() {
+    const fetchAttendance = React.useCallback(async () => {
         if (!selectedClassId) return;
         setLoading(true);
         try {
@@ -89,7 +83,13 @@ export function Classes() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [selectedClassId, selectedDate, classes]);
+
+    React.useEffect(() => {
+        if (selectedClassId && selectedDate) {
+            fetchAttendance();
+        }
+    }, [selectedClassId, selectedDate, fetchAttendance]);
 
     const togglePresence = (studentId: string) => {
         setAttendance(prev => ({

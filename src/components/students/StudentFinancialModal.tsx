@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
@@ -19,13 +19,7 @@ export function StudentFinancialModal({ isOpen, onClose, student }: StudentFinan
     const [loading, setLoading] = useState(false);
     const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
 
-    useEffect(() => {
-        if (isOpen && student) {
-            fetchTransactions();
-        }
-    }, [isOpen, student]);
-
-    const fetchTransactions = async () => {
+    const fetchTransactions = React.useCallback(async () => {
         if (!student) return;
         setLoading(true);
         try {
@@ -42,7 +36,13 @@ export function StudentFinancialModal({ isOpen, onClose, student }: StudentFinan
         } finally {
             setLoading(false);
         }
-    };
+    }, [student]);
+
+    useEffect(() => {
+        if (isOpen && student) {
+            fetchTransactions();
+        }
+    }, [isOpen, student, fetchTransactions]);
 
     const getStatusColor = (status: string) => {
         switch (status) {

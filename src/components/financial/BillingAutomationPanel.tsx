@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,16 +37,13 @@ export function BillingAutomationPanel({ transactions }: BillingAutomationPanelP
         const savedInstance = localStorage.getItem('evolution_instance_name');
 
         if (savedUrl && savedKey) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setService(new EvolutionService(savedUrl, savedKey));
         }
         if (savedInstance) setInstanceName(savedInstance);
     }, []);
 
-    useEffect(() => {
-        identifyCandidates();
-    }, [transactions]);
-
-    const identifyCandidates = () => {
+    const identifyCandidates = useCallback(() => {
         const today = startOfDay(new Date());
         const newCandidates: BillingCandidate[] = [];
 
@@ -91,7 +88,12 @@ export function BillingAutomationPanel({ transactions }: BillingAutomationPanelP
         });
 
         setCandidates(newCandidates);
-    };
+    }, [transactions]);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        identifyCandidates();
+    }, [transactions, identifyCandidates]);
 
     const handleProcess = async () => {
         if (!service) return alert('WhatsApp não configurado.');

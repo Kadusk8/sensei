@@ -46,9 +46,9 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
         if (isOpen && classId) {
             loadData();
         }
-    }, [isOpen, classId, date]);
+    }, [isOpen, classId, date, loadData]);
 
-    const loadData = async () => {
+    const loadData = React.useCallback(async () => {
         setLoading(true);
         try {
             const dateStr = format(date, 'yyyy-MM-dd');
@@ -93,7 +93,7 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
         } finally {
             setLoading(false);
         }
-    };
+    }, [classId, date]);
 
     const togglePresence = (studentId: string) => {
         setPresenceMap(prev => ({

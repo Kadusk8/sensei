@@ -37,9 +37,9 @@ export function AttendanceModal({ isOpen, onClose, classData, date, onSuccess, o
         if (isOpen) {
             fetchInitialData();
         }
-    }, [isOpen, classData, formattedDate]);
+    }, [isOpen, fetchInitialData]);
 
-    async function fetchInitialData() {
+    const fetchInitialData = React.useCallback(async () => {
         setLoadingData(true);
         try {
             // 1. Fetch Professors for override dropdown
@@ -50,7 +50,7 @@ export function AttendanceModal({ isOpen, onClose, classData, date, onSuccess, o
             const { data: session } = await supabase
                 .from('class_sessions')
                 .select('*')
-                .eq('class_id', classData.id)
+                .eq('class_id', classData?.id)
                 .eq('date', formattedDate)
                 .single();
 
@@ -69,7 +69,7 @@ export function AttendanceModal({ isOpen, onClose, classData, date, onSuccess, o
             const { data: attendance } = await supabase
                 .from('attendance')
                 .select('student_id')
-                .eq('class_id', classData.id)
+                .eq('class_id', classData?.id)
                 .eq('date', formattedDate)
                 .eq('present', true);
 
@@ -93,7 +93,7 @@ export function AttendanceModal({ isOpen, onClose, classData, date, onSuccess, o
         } finally {
             setLoadingData(false);
         }
-    }
+    }, [classData?.id, formattedDate]);
 
     const handleSaveSession = async () => {
         setLoading(true);
