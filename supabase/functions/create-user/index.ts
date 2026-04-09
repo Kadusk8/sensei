@@ -62,8 +62,8 @@ Deno.serve(async (req: Request) => {
     const { email, password, user_name, user_role } = body
 
     if (!email || !password || !user_name || !user_role) {
-      return new Response(JSON.stringify({ error: 'Missing required fields', received: Object.keys(body) }), {
-        status: 400,
+      return new Response(JSON.stringify({ error: 'Preencha todos os campos obrigatórios.', received: Object.keys(body) }), {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -79,8 +79,12 @@ Deno.serve(async (req: Request) => {
     })
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
+      let errorMessage = error.message;
+      if (errorMessage.toLowerCase().includes('already registered') || errorMessage.toLowerCase().includes('already exists')) {
+        errorMessage = 'Este e-mail já está sendo utilizado.';
+      }
+      return new Response(JSON.stringify({ error: errorMessage }), {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
