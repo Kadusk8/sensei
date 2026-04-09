@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AddCategoryModalProps {
     isOpen: boolean;
@@ -41,7 +42,7 @@ export function AddCategoryModal({ isOpen, onClose, onSuccess }: AddCategoryModa
             onClose();
         } catch (error: any) {
             console.error('Error adding category:', error);
-            alert('Erro ao adicionar categoria: ' + error.message);
+            toast.error('Erro ao adicionar categoria: ' + error.message);
         } finally {
             setLoading(false);
         }

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 interface AttendanceModalProps {
     isOpen: boolean;
@@ -131,7 +132,7 @@ export function AttendanceModal({ isOpen, onClose, classData, date, onSuccess, o
             onClose();
         } catch (error: any) {
             console.error('Error saving session:', error);
-            alert('Erro ao salvar: ' + error.message);
+            toast.error('Erro ao salvar: ' + error.message);
         } finally {
             setLoading(false);
         }

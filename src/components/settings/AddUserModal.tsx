@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AddUserModalProps {
     isOpen: boolean;
@@ -62,7 +63,7 @@ export function AddUserModal({ isOpen, onClose, onSuccess }: AddUserModalProps) 
                 password: '',
                 role: 'secretary'
             });
-            alert('Usuário criado com sucesso!');
+            toast.success('Usuário criado com sucesso!');
         } catch (error: any) {
             console.error('Error creating user:', error);
             setError(error.message || 'Erro ao criar usuário');

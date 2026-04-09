@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Wallet, CheckCircle2, MessageSquare, Loader2 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { format, isBefore, startOfDay, isToday, addDays } from 'date-fns';
 import type { Database } from '@/types/database';
-import { EvolutionService } from '@/services/whatsapp';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
+import { toast } from 'sonner';
 
 type Transaction = Database['public']['Tables']['transactions']['Row'] & { phone?: string };
 
@@ -15,24 +16,12 @@ interface AccountsReceivableListProps {
 }
 
 export function AccountsReceivableList({ transactions, onReceive }: AccountsReceivableListProps) {
-    const [service, setService] = useState<EvolutionService | null>(null);
+    const { service, instanceName } = useWhatsApp();
     const [sendingId, setSendingId] = useState<string | null>(null);
-    const [instanceName, setInstanceName] = useState<string>('sensei-primary');
-
-    useEffect(() => {
-        const savedUrl = localStorage.getItem('evolution_api_url');
-        const savedKey = localStorage.getItem('evolution_api_key');
-        const savedInstance = localStorage.getItem('evolution_instance_name');
-
-        if (savedUrl && savedKey) {
-            setService(new EvolutionService(savedUrl, savedKey));
-        }
-        if (savedInstance) setInstanceName(savedInstance);
-    }, []);
 
     const handleSendCharge = async (t: Transaction) => {
-        if (!service) return alert('Configure o WhatsApp nas Configurações primeiro.');
-        if (!t.phone) return alert('Aluno sem telefone cadastrado.');
+        if (!service) { toast.info('Configure o WhatsApp nas Configurações primeiro.'); return; }
+        if (!t.phone) { toast.info('Aluno sem telefone cadastrado.'); return; }
 
         // Validation for phone (same as Settings)
         let phone = t.phone.replace(/\D/g, '');
@@ -49,10 +38,10 @@ export function AccountsReceivableList({ transactions, onReceive }: AccountsRece
         setSendingId(t.id);
         try {
             await service.sendText(instanceName, phone, message);
-            alert('Cobrança enviada com sucesso!');
+            toast.success('Cobrança enviada com sucesso!');
         } catch (error) {
             console.error(error);
-            alert('Erro ao enviar mensagem.');
+            toast.error('Erro ao enviar mensagem.');
         } finally {
             setSendingId(null);
         }

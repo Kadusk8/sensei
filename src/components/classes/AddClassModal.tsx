@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 interface AddClassModalProps {
     isOpen: boolean;
@@ -95,7 +96,7 @@ export function AddClassModal({ isOpen, onClose, onSuccess, classToEdit }: AddCl
             onClose();
         } catch (error) {
             console.error('Error saving class:', error);
-            alert('Error adding/updating class. Please try again.');
+            toast.error('Error adding/updating class. Please try again.');
         } finally {
             setLoading(false);
         }

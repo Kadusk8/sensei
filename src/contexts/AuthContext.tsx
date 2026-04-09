@@ -53,11 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .from('profiles')
                 .select('role')
                 .eq('id', userId)
-                .single();
+                .single() as unknown as { data: { role: string } | null; error: { code: string } | null };
 
             if (data) {
-                // @ts-ignore
-                setRole(data.role as any);
+                setRole(data.role as 'admin' | 'professor' | 'secretary');
             } else if (error && error.code === 'PGRST116') {
                 // Profile doesn't exist yet, might be fine if using triggers
                 // or manual creation.

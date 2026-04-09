@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import type { Database } from '@/types/database';
 
 import { EvolutionService } from '@/services/whatsapp';
+import { toast } from 'sonner';
 
 interface AddStudentModalProps {
     isOpen: boolean;
@@ -68,14 +69,13 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
                 supabase.from('plans').select('*').order('price'),
                 supabase.from('professors').select('*').order('full_name'),
                 supabase.from('classes').select('*').order('name'),
-                supabase.from('gym_info').select('name').single()
+                (supabase.from('gym_info') as any).select('name').single() as Promise<{ data: { name: string } | null }>
             ]);
 
             if (plansRes.data) setPlans(plansRes.data);
             if (profsRes.data) setProfessors(profsRes.data);
             if (classesRes.data) setClasses(classesRes.data);
-            // @ts-ignore
-            if (gymRes.data && gymRes.data.name) setGymName(gymRes.data.name);
+            if (gymRes.data?.name) setGymName(gymRes.data.name);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -105,7 +105,7 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
 
             const file = event.target.files[0];
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
+            const fileName = `${crypto.randomUUID()}.${fileExt}`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
@@ -119,7 +119,7 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
             const { data } = supabase.storage.from('student-photos').getPublicUrl(filePath);
             setAvatarUrl(data.publicUrl);
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message);
         } finally {
             setUploading(false);
         }
@@ -230,7 +230,7 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, studentToEdit, wha
             onClose();
         } catch (error) {
             console.error('Error saving student:', error);
-            alert('Erro ao salvar aluno.');
+            toast.error('Erro ao salvar aluno.');
         } finally {
             setLoading(false);
         }

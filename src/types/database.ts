@@ -73,6 +73,9 @@ export interface Database {
                     belt?: string | null
                     degrees?: number | null
                     created_at: string
+                    due_day: number | null
+                    professor_id: string | null
+                    class_id: string | null
                 }
                 Insert: {
                     id?: string
@@ -83,9 +86,13 @@ export interface Database {
                     avatar_url?: string | null
                     plan_id?: string | null
                     status?: 'active' | 'debt' | 'inactive'
+                    modality?: string | null
                     belt?: string | null
                     degrees?: number | null
                     created_at?: string
+                    due_day?: number | null
+                    professor_id?: string | null
+                    class_id?: string | null
                 }
                 Update: {
                     id?: string
@@ -96,9 +103,13 @@ export interface Database {
                     avatar_url?: string | null
                     plan_id?: string | null
                     status?: 'active' | 'debt' | 'inactive'
+                    modality?: string | null
                     belt?: string | null
                     degrees?: number | null
                     created_at?: string
+                    due_day?: number | null
+                    professor_id?: string | null
+                    class_id?: string | null
                 }
             }
             transactions: {

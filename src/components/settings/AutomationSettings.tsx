@@ -1,29 +1,20 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bot, Play, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
-import { EvolutionService } from '@/services/whatsapp';
+import { Bot, Play, ShieldAlert, FileText } from 'lucide-react';
 import { BillingBot } from '@/services/billingBot';
+import { toast } from 'sonner';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 
 export function AutomationSettings() {
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<string[]>([]);
-
-    // Helper to get service (reusing logic from WhatsAppSettings essentially)
-    const getService = () => {
-        const url = localStorage.getItem('evolution_api_url');
-        const key = localStorage.getItem('evolution_api_key');
-        const instance = localStorage.getItem('evolution_instance_name');
-
-        if (!url || !key || !instance) return null;
-        return { service: new EvolutionService(url, key), instanceName: instance };
-    };
+    const { service, instanceName, isConfigured } = useWhatsApp();
+    // service and instanceName used inside handleRunBilling via closure
 
     const handleRunBilling = async (dryRun: boolean) => {
-        const config = getService();
-        if (!config) {
-            alert("Configure a conexão do WhatsApp primeiro!");
+        if (!isConfigured) {
+            toast.info("Configure a conexão do WhatsApp primeiro!");
             return;
         }
 
@@ -31,7 +22,7 @@ export function AutomationSettings() {
         setLogs(prev => [`🚀 Iniciando robô de cobrança (${dryRun ? 'Simulação' : 'ENVIO REAL'})...`, ...prev]);
 
         try {
-            const bot = new BillingBot(config.service, config.instanceName);
+            const bot = new BillingBot(service!, instanceName);
             const result = await bot.checkAndNotifyDuePayments(dryRun);
 
             setLogs(prev => [

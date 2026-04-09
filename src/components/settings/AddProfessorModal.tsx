@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AddProfessorModalProps {
     isOpen: boolean;
@@ -124,7 +125,7 @@ export function AddProfessorModal({ isOpen, onClose, onSuccess }: AddProfessorMo
             // Fallback for demo: If FK fails, maybe we just have to explain to user 
             // that they need to "Register" a new account.
             // OR I can try to remove the constraint if I had SQL access.
-            alert('Erro: Não foi possível adicionar professor diretamente (Restrição de Auth ou Coluna Faltante). Verifique se criou a coluna "modality" no banco.');
+            toast.error('Erro: Não foi possível adicionar professor diretamente (Restrição de Auth ou Coluna Faltante). Verifique se criou a coluna "modality" no banco.');
         } finally {
             setLoading(false);
         }

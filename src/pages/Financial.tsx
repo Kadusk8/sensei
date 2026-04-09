@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -922,10 +923,10 @@ export function Financial() {
 
             if (error) throw error;
             loadAllData();
-            alert('Recebimento registrado com sucesso!');
+            toast.success('Recebimento registrado com sucesso!');
         } catch (error) {
             console.error('Error receiving payment:', error);
-            alert('Erro ao registrar recebimento.');
+            toast.error('Erro ao registrar recebimento.');
         }
     };
 
@@ -947,10 +948,10 @@ export function Financial() {
 
             // Data will auto-refresh due to subscription, but we can force it
             loadAllData();
-            alert('Pagamento registrado com sucesso!');
+            toast.success('Pagamento registrado com sucesso!');
         } catch (error) {
             console.error('Error paying professor:', error);
-            alert('Erro ao registrar pagamento.');
+            toast.error('Erro ao registrar pagamento.');
         }
     };
 
@@ -972,10 +973,10 @@ export function Financial() {
                 } as any]);
                 if (error) throw error;
                 loadAllData();
-                alert('Despesa fixa registrada e paga com sucesso!');
+                toast.success('Despesa fixa registrada e paga com sucesso!');
             } catch (error) {
                 console.error('Error paying ghost transaction:', error);
-                alert('Erro ao registrar e pagar despesa fixa.');
+                toast.error('Erro ao registrar e pagar despesa fixa.');
             }
             return;
         }
@@ -994,7 +995,7 @@ export function Financial() {
             loadAllData();
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Erro ao atualizar status.');
+            toast.error('Erro ao atualizar status.');
         }
     };
 
@@ -1006,7 +1007,7 @@ export function Financial() {
             loadAllData();
         } catch (error) {
             console.error('Error deleting:', error);
-            alert('Erro ao excluir.');
+            toast.error('Erro ao excluir.');
         }
     };
 

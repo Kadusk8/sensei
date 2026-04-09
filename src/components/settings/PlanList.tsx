@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, Ticket } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
 import { AddPlanModal } from './AddPlanModal';
+import { toast } from 'sonner';
 
 interface Plan {
     id: string;
@@ -73,7 +74,7 @@ export function PlanList() {
             fetchPlans();
         } catch (error: any) {
             console.error('Error deleting plan:', error);
-            alert('Erro ao excluir plano: ' + (error.message || error));
+            toast.error('Erro ao excluir plano: ' + (error.message || error));
         }
     };
 

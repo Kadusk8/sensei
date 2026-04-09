@@ -14,7 +14,7 @@ export class BillingBot {
         const logs: string[] = [];
         let sentCount = 0;
         let errorCount = 0;
-        let students: any[] = [];
+        let students: { id: string; full_name: string; phone: string | null; plan_id: string | null; due_day: number | null; status: string; plans: { name: string; price: number } | null }[] = [];
 
         try {
             const today = new Date();
@@ -22,11 +22,8 @@ export class BillingBot {
 
             // 0. Fetch Gym Info
             let gymName = 'Sua Academia';
-            const { data: gymInfo } = await supabase.from('gym_info').select('name').single();
-            if (gymInfo) {
-                // @ts-ignore
-                gymName = gymInfo.name || 'Sua Academia';
-            }
+            const { data: gymInfo } = await supabase.from('gym_info').select('name').single() as { data: { name: string } | null };
+            if (gymInfo?.name) gymName = gymInfo.name;
 
             logs.push(`🔍 Buscando alunos com vencimento dia ${currentDay}...`);
 
@@ -69,8 +66,8 @@ export class BillingBot {
 
                     const phone = student.phone.replace(/\D/g, '');
                     const targetPhone = phone.length <= 11 ? `55${phone}` : phone;
-                    const planName = (student.plans as any)?.name || 'Plano';
-                    const price = (student.plans as any)?.price || 0;
+                    const planName = student.plans?.name || 'Plano';
+                    const price = student.plans?.price || 0;
 
                     const message = `🔔 *Lembrete de Vencimento*\n\n` +
                         `Olá, ${student.full_name}!\n` +

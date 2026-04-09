@@ -6,8 +6,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Send, AlertTriangle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { format, differenceInDays, startOfDay } from 'date-fns';
-import { EvolutionService } from '@/services/whatsapp';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 import type { Database } from '@/types/database';
+import { toast } from 'sonner';
 
 type Transaction = Database['public']['Tables']['transactions']['Row'] & { phone?: string };
 
@@ -28,20 +29,7 @@ interface BillingCandidate {
 export function BillingAutomationPanel({ transactions }: BillingAutomationPanelProps) {
     const [candidates, setCandidates] = useState<BillingCandidate[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [service, setService] = useState<EvolutionService | null>(null);
-    const [instanceName, setInstanceName] = useState<string>('sensei-primary');
-
-    useEffect(() => {
-        const savedUrl = localStorage.getItem('evolution_api_url');
-        const savedKey = localStorage.getItem('evolution_api_key');
-        const savedInstance = localStorage.getItem('evolution_instance_name');
-
-        if (savedUrl && savedKey) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setService(new EvolutionService(savedUrl, savedKey));
-        }
-        if (savedInstance) setInstanceName(savedInstance);
-    }, []);
+    const { service, instanceName } = useWhatsApp();
 
     const identifyCandidates = useCallback(() => {
         const today = startOfDay(new Date());
@@ -96,7 +84,7 @@ export function BillingAutomationPanel({ transactions }: BillingAutomationPanelP
     }, [transactions, identifyCandidates]);
 
     const handleProcess = async () => {
-        if (!service) return alert('WhatsApp não configurado.');
+        if (!service) { toast.info('WhatsApp não configurado.'); return; }
 
         const toProcess = candidates.filter(c => c.selected && c.status === 'pending');
         if (toProcess.length === 0) return;
@@ -133,7 +121,7 @@ export function BillingAutomationPanel({ transactions }: BillingAutomationPanelP
         }
 
         setIsProcessing(false);
-        alert('Processamento concluído!');
+        toast.success('Processamento concluído!');
     };
 
     const toggleSelect = (id: string) => {

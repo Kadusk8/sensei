@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Building2, Loader2, Save } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export function GymInfoSettings() {
     const [loading, setLoading] = useState(false);
@@ -68,10 +69,10 @@ export function GymInfoSettings() {
                 if (error) throw error;
                 fetchGymInfo(); // Refresh to get ID
             }
-            alert('Informações salvas com sucesso!');
+            toast.success('Informações salvas com sucesso!');
         } catch (error: any) {
             console.error('Error saving:', error);
-            alert('Erro ao salvar: ' + error.message);
+            toast.error('Erro ao salvar: ' + error.message);
         } finally {
             setSaving(false);
         }

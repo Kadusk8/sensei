@@ -1,33 +1,17 @@
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { StudentList } from '@/components/students/StudentList';
 import { AddStudentModal } from '@/components/students/AddStudentModal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { EvolutionService } from '@/services/whatsapp';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraduationPanel } from "@/components/students/GraduationPanel";
 
 export function Students() {
-    const { } = useAuth();
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
     const [refreshKey, setRefreshKey] = React.useState(0);
-
-    // WhatsApp State
-    const [service, setService] = React.useState<EvolutionService | null>(null);
-    const [instanceName, setInstanceName] = React.useState<string>('sensei-primary');
-
-    React.useEffect(() => {
-        const savedUrl = localStorage.getItem('evolution_api_url');
-        const savedKey = localStorage.getItem('evolution_api_key');
-        const savedInstance = localStorage.getItem('evolution_instance_name');
-
-        if (savedUrl && savedKey) {
-            setService(new EvolutionService(savedUrl, savedKey));
-        }
-        if (savedInstance) setInstanceName(savedInstance);
-    }, []);
+    const { service, instanceName } = useWhatsApp();
 
     return (
         <div className="space-y-6 pt-6 animate-in fade-in slide-in-from-bottom-5 duration-500">

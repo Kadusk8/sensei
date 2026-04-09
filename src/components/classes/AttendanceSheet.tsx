@@ -10,6 +10,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface Student {
     id: string;
@@ -89,7 +90,7 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
 
         } catch (error) {
             console.error('Error loading data:', error);
-            alert('Erro ao carregar dados.');
+            toast.error('Erro ao carregar dados.');
         } finally {
             setLoading(false);
         }
@@ -134,13 +135,13 @@ export function AttendanceSheet({ isOpen, onClose, classId, className, date, onS
 
             if (attendanceError) throw attendanceError;
 
-            alert('Chamada salva com sucesso! 🥋');
+            toast.success('Chamada salva com sucesso! 🥋');
             onSuccess();
             onClose();
 
         } catch (error: any) {
             console.error('Error saving:', error);
-            alert('Erro ao salvar: ' + error.message);
+            toast.error('Erro ao salvar: ' + error.message);
         } finally {
             setSaving(false);
         }

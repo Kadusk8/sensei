@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddTransactionModal } from '@/components/financial/AddTransactionModal';
+import { toast } from 'sonner';
 
 interface StudentFinancialModalProps {
     isOpen: boolean;
@@ -63,7 +64,7 @@ export function StudentFinancialModal({ isOpen, onClose, student }: StudentFinan
             if (error) throw error;
             fetchTransactions();
         } catch (error) {
-            alert('Erro ao atualizar status.');
+            toast.error('Erro ao atualizar status.');
         }
     };
 

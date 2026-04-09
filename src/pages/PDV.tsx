@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 import { AddProductModal } from '@/components/dashboard/AddProductModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 type Product = Database['public']['Tables']['products']['Row'];
 
@@ -53,12 +54,14 @@ export function PDV() {
     const handleCheckout = async () => {
         setProcessing(true);
         try {
+            const itemsDescription = cart.map(i => `${i.product.name} x${i.quantity}`).join(', ');
+
             // 1. Create Transaction
             const { error: transError } = await supabase
                 .from('transactions')
                 .insert({
                     type: 'income',
-                    category: 'PDV Sale',
+                    category: `[PDV] ${itemsDescription}`,
                     amount: total,
                     status: 'paid',
                     due_date: new Date().toISOString()
@@ -68,23 +71,32 @@ export function PDV() {
 
             if (transError) throw transError;
 
-            // 2. Decrement Stock (Simplified loop)
+            // 2. Decrement Stock (with fresh read to prevent race condition)
             for (const item of cart) {
                 if (item.product.stock_quantity !== null) {
-                    await supabase
+                    const { data: freshProduct } = await supabase
                         .from('products')
-                        // @ts-ignore
-                        .update({ stock_quantity: item.product.stock_quantity! - item.quantity })
-                        .eq('id', item.product.id);
+                        .select('stock_quantity')
+                        .eq('id', item.product.id)
+                        .single() as { data: { stock_quantity: number | null } | null };
+
+                    if (freshProduct && freshProduct.stock_quantity !== null) {
+                        const newQty = freshProduct.stock_quantity - item.quantity;
+                        if (newQty < 0) throw new Error(`Estoque insuficiente para "${item.product.name}"`);
+                        await (supabase
+                            .from('products') as any)
+                            .update({ stock_quantity: newQty })
+                            .eq('id', item.product.id);
+                    }
                 }
             }
 
-            alert(`Venda finalizada! Transação criada.`);
+            toast.success(`Venda finalizada! Transação criada.`);
             setCart([]);
             refetch(); // Update stock in UI
         } catch (err: any) {
             console.error(err);
-            alert('Erro ao processar venda: ' + err.message);
+            toast.error('Erro ao processar venda: ' + err.message);
         } finally {
             setProcessing(false);
         }
@@ -99,7 +111,7 @@ export function PDV() {
             refetch();
         } catch (error: any) {
             console.error('Error deleting product:', error);
-            alert('Erro ao excluir produto: ' + error.message);
+            toast.error('Erro ao excluir produto: ' + error.message);
         }
     };
 

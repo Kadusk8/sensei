@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, QrCode, Trash2, RefreshCw, MessageSquare } from 'lucide-react';
 import { EvolutionService } from '@/services/whatsapp';
+import { toast } from 'sonner';
 
 export function WhatsAppSettings() {
     const [apiUrl, setApiUrl] = useState('');
@@ -36,7 +37,7 @@ export function WhatsAppSettings() {
         localStorage.setItem('evolution_api_key', apiKey);
         localStorage.setItem('evolution_instance_name', instanceName);
         setService(new EvolutionService(apiUrl, apiKey));
-        alert('Configurações salvas!');
+        toast.success('Configurações salvas!');
     };
 
     const handleConnect = async () => {
@@ -66,7 +67,7 @@ export function WhatsAppSettings() {
 
         } catch (error) {
             console.error('Connection failed:', error);
-            alert('Falha ao conectar. Verifique URL e API Key.');
+            toast.error('Falha ao conectar. Verifique URL e API Key.');
         } finally {
             setLoading(false);
         }
@@ -194,7 +195,7 @@ export function WhatsAppSettings() {
                                                     const input = document.getElementById('test-number') as HTMLInputElement;
                                                     let number = input.value.replace(/\D/g, ''); // Remove non-digits
 
-                                                    if (!number) return alert('Digite um número');
+                                                    if (!number) { toast.info('Digite um número'); return; }
 
                                                     // Basic validation for Brazil (often missing 55)
                                                     if (number.length === 11 || number.length === 10) {
@@ -208,11 +209,11 @@ export function WhatsAppSettings() {
 
                                                     try {
                                                         await service.sendText(instanceName, number, 'Teste de conexão Sensei 🥋');
-                                                        alert('Mensagem enviada com sucesso!');
+                                                        toast.success('Mensagem enviada com sucesso!');
                                                     } catch (e: any) {
                                                         console.error(e);
                                                         const errorMsg = e.response?.data?.message || e.message || 'Erro desconhecido';
-                                                        alert(`Erro ao enviar: ${errorMsg}\n\nVerifique se a URL da API permite conexões externas (CORS) ou se a instância está realmente conectada.`);
+                                                        toast.error(`Erro ao enviar: ${errorMsg}\n\nVerifique se a URL da API permite conexões externas (CORS) ou se a instância está realmente conectada.`);
                                                     }
                                                 }}
                                             >

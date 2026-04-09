@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface AddTransactionModalProps {
     isOpen: boolean;
@@ -119,7 +120,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess, transactionToE
             onClose();
         } catch (error: any) {
             console.error('Error saving transaction:', error);
-            alert('Erro ao salvar transação: ' + error.message);
+            toast.error('Erro ao salvar transação: ' + error.message);
         } finally {
             setLoading(false);
         }

@@ -7,6 +7,7 @@ type Product = Database['public']['Tables']['products']['Row'];
 export function useProducts() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchProducts();
@@ -15,6 +16,7 @@ export function useProducts() {
     async function fetchProducts() {
         try {
             setLoading(true);
+            setError(null);
             const { data, error } = await supabase
                 .from('products')
                 .select('*')
@@ -22,12 +24,12 @@ export function useProducts() {
 
             if (error) throw error;
             setProducts(data || []);
-        } catch (error) {
-            console.error('Error fetching products:', error);
+        } catch (err: any) {
+            setError(err.message);
         } finally {
             setLoading(false);
         }
     }
 
-    return { products, loading, refetch: fetchProducts };
+    return { products, loading, error, refetch: fetchProducts };
 }

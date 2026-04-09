@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Swords } from 'lucide-react';
-// import { toast } from 'sonner'; // Assuming sonner or use alert
+import { toast } from 'sonner';
 
 interface GraduationModalProps {
     isOpen: boolean;
@@ -52,7 +52,7 @@ export function GraduationModal({ isOpen, onClose, student, onSuccess }: Graduat
             onClose();
         } catch (error: any) {
             console.error('Error promoting student:', error);
-            alert('Erro ao graduar aluno: ' + error.message);
+            toast.error('Erro ao graduar aluno: ' + error.message);
         } finally {
             setLoading(false);
         }

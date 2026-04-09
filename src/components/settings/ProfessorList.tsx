@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Users, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AddProfessorModal } from './AddProfessorModal';
+import { toast } from 'sonner';
 
 
 export function ProfessorList() {
@@ -28,7 +29,7 @@ export function ProfessorList() {
 
         const { error } = await supabase.from('professors').delete().eq('id', id);
         if (!error) fetchProfessors();
-        else alert('Erro ao excluir: ' + error.message);
+        else toast.error('Erro ao excluir: ' + error.message);
     }
 
     return (

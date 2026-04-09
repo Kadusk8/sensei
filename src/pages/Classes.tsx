@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
@@ -6,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { AddClassModal } from '@/components/classes/AddClassModal';
 import { Plus, ShieldCheck, UserCog, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function Classes() {
     const [selectedDate, setSelectedDate] = React.useState<string>(new Date().toISOString().split('T')[0]);
@@ -67,7 +67,7 @@ export function Classes() {
                 .select('professor_id, professor_present')
                 .eq('class_id', selectedClassId)
                 .eq('date', selectedDate)
-                .maybeSingle();
+                .maybeSingle() as unknown as { data: { professor_id: string | null; professor_present: boolean } | null };
 
             if (sessionData) {
                 setSelectedProfessorId(sessionData.professor_id);
@@ -103,8 +103,8 @@ export function Classes() {
         setSaving(true);
         try {
             // 1. Upsert class session (professor + presence)
-            const { error: sessionError } = await supabase
-                .from('class_sessions')
+            const { error: sessionError } = await (supabase
+                .from('class_sessions') as any)
                 .upsert({
                     class_id: selectedClassId,
                     date: selectedDate,
@@ -115,28 +115,41 @@ export function Classes() {
 
             if (sessionError) throw sessionError;
 
-            // 2. Delete existing attendance
+            // 2. Fetch existing records before delete (for rollback on insert failure)
+            const { data: existingRecords } = await supabase
+                .from('attendance')
+                .select('student_id, class_id, date, present')
+                .eq('class_id', selectedClassId)
+                .eq('date', selectedDate);
+
+            // 3. Delete existing attendance
             await supabase
                 .from('attendance')
                 .delete()
                 .eq('class_id', selectedClassId)
                 .eq('date', selectedDate);
 
-            // 3. Insert new attendance
+            // 4. Insert new attendance
             const updates = students.map(student => ({
                 student_id: student.id,
-                class_id: selectedClassId,
+                class_id: selectedClassId!,
                 date: selectedDate,
                 present: attendance[student.id] || false
             }));
 
             const { error } = await (supabase.from('attendance') as any).insert(updates);
 
-            if (error) throw error;
-            alert('Chamada salva com sucesso!');
+            if (error) {
+                // Rollback: restore previous records on failure
+                if (existingRecords && existingRecords.length > 0) {
+                    await supabase.from('attendance').insert(existingRecords as any);
+                }
+                throw error;
+            }
+            toast.success('Chamada salva com sucesso!');
         } catch (error) {
             console.error('Error saving:', error);
-            alert('Erro ao salvar chamada.');
+            toast.error('Erro ao salvar chamada.');
         } finally {
             setSaving(false);
         }
@@ -199,7 +212,7 @@ export function Classes() {
                                         if (!confirm(`Excluir turma "${cls.name}"?`)) return;
                                         const { error } = await supabase.from('classes').delete().eq('id', cls.id);
                                         if (error) {
-                                            alert('Erro ao excluir: ' + error.message);
+                                            toast.error('Erro ao excluir: ' + error.message);
                                         } else {
                                             fetchClasses();
                                             if (selectedClassId === cls.id) setSelectedClassId(null);

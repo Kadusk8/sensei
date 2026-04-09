@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Plan {
     id: string;
@@ -73,7 +74,7 @@ export function AddPlanModal({ isOpen, onClose, onSuccess, planToEdit }: AddPlan
             onClose();
         } catch (error) {
             console.error('Error saving plan:', error);
-            alert('Erro ao salvar plano. Tente novamente.');
+            toast.error('Erro ao salvar plano. Tente novamente.');
         } finally {
             setLoading(false);
         }

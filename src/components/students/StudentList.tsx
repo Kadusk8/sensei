@@ -11,8 +11,9 @@ import { GraduationModal } from './GraduationModal';
 import { StudentFinancialModal } from './StudentFinancialModal';
 import { AsaasSubscriptionModal } from './AsaasSubscriptionModal';
 
-import { EvolutionService } from '@/services/whatsapp';
+import { useWhatsApp } from '@/hooks/useWhatsApp';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 
 export function StudentList() {
@@ -20,20 +21,7 @@ export function StudentList() {
     const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    // WhatsApp State
-    const [service, setService] = useState<EvolutionService | null>(null);
-    const [instanceName, setInstanceName] = useState<string>('sensei-primary');
-
-    React.useEffect(() => {
-        const savedUrl = localStorage.getItem('evolution_api_url');
-        const savedKey = localStorage.getItem('evolution_api_key');
-        const savedInstance = localStorage.getItem('evolution_instance_name');
-
-        if (savedUrl && savedKey) {
-            setService(new EvolutionService(savedUrl, savedKey));
-        }
-        if (savedInstance) setInstanceName(savedInstance);
-    }, []);
+    const { service, instanceName } = useWhatsApp();
     const [studentToEdit, setStudentToEdit] = useState<any | null>(null);
     const [isGraduationModalOpen, setIsGraduationModalOpen] = useState(false);
     const [studentToGraduate, setStudentToGraduate] = useState<any | null>(null);
@@ -107,7 +95,7 @@ export function StudentList() {
 
         const { error } = await supabase.from('students').delete().eq('id', id);
         if (error) {
-            alert('Erro ao excluir: ' + error.message);
+            toast.error('Erro ao excluir: ' + error.message);
         } else {
             // Optimistic update or refetch
             // We need 'refetch' from useStudents, but currently it might not be exposed or triggered easily.
@@ -181,8 +169,8 @@ export function StudentList() {
                                         className="h-8 w-8 text-zinc-500 hover:text-emerald-500"
                                         onClick={async (e) => {
                                             e.stopPropagation();
-                                            if (!service) return alert('Configure o WhatsApp nas Configurações primeiro.');
-                                            if (!student.phone) return alert('Aluno sem telefone cadastrado.');
+                                            if (!service) { toast.info('Configure o WhatsApp nas Configurações primeiro.'); return; }
+                                            if (!student.phone) { toast.info('Aluno sem telefone cadastrado.'); return; }
 
                                             let phone = student.phone.replace(/\D/g, '');
                                             if (phone.length <= 11) phone = '55' + phone;
@@ -192,9 +180,9 @@ export function StudentList() {
 
                                             try {
                                                 await service.sendText(instanceName, phone, message);
-                                                alert('Mensagem enviada!');
+                                                toast.success('Mensagem enviada!');
                                             } catch (err) {
-                                                alert('Erro ao enviar mensagem.');
+                                                toast.error('Erro ao enviar mensagem.');
                                             }
                                         }}
                                         title="Enviar WhatsApp"
@@ -302,8 +290,8 @@ export function StudentList() {
                             <Button
                                 className="w-full col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                                 onClick={async () => {
-                                    if (!service) return alert('Configure o WhatsApp nas Configurações primeiro.');
-                                    if (!selectedStudent.phone) return alert('Aluno sem telefone cadastrado.');
+                                    if (!service) { toast.info('Configure o WhatsApp nas Configurações primeiro.'); return; }
+                                    if (!selectedStudent.phone) { toast.info('Aluno sem telefone cadastrado.'); return; }
 
                                     let phone = selectedStudent.phone.replace(/\D/g, '');
                                     if (phone.length <= 11) phone = '55' + phone;
@@ -313,9 +301,9 @@ export function StudentList() {
 
                                     try {
                                         await service.sendText(instanceName, phone, message);
-                                        alert('Mensagem enviada!');
+                                        toast.success('Mensagem enviada!');
                                     } catch (e) {
-                                        alert('Erro ao enviar mensagem.');
+                                        toast.error('Erro ao enviar mensagem.');
                                     }
                                 }}
                             >

@@ -6,6 +6,7 @@ import { Users, Plus, Shield, User, GraduationCap, Loader2, Trash2 } from 'lucid
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { AddUserModal } from './AddUserModal';
+import { toast } from 'sonner';
 
 interface Profile {
     id: string;
@@ -54,10 +55,10 @@ export function UserList() {
 
             // Re-fetch users
             fetchUsers();
-            alert('Usuário removido com sucesso!');
+            toast.success('Usuário removido com sucesso!');
         } catch (error: any) {
             console.error('Error deleting user:', error);
-            alert('Erro ao excluir usuário: ' + error.message);
+            toast.error('Erro ao excluir usuário: ' + error.message);
         }
     };
 

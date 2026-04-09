@@ -5,6 +5,7 @@ import { Plus, Tag, Trash2, Loader2, RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AddCategoryModal } from './AddCategoryModal';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface Category {
     id: string;
@@ -56,7 +57,7 @@ export function CategoryList() {
             fetchCategories();
         } catch (error: any) {
             console.error('Error deleting category:', error);
-            alert('Erro ao excluir: ' + error.message);
+            toast.error('Erro ao excluir: ' + error.message);
         }
     };
 
