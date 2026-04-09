@@ -44,15 +44,21 @@ export function AddUserModal({ isOpen, onClose, onSuccess }: AddUserModalProps) 
         setError(null);
 
         try {
-            // Call the custom SQL function we created
-            const { data, error } = await supabase.rpc('create_user_with_role', {
-                email: formData.email,
-                password: formData.password,
-                user_name: formData.full_name,
-                user_role: formData.role
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await supabase.functions.invoke('create-user', {
+                body: {
+                    email: formData.email,
+                    password: formData.password,
+                    user_name: formData.full_name,
+                    user_role: formData.role,
+                },
+                headers: {
+                    Authorization: `Bearer ${session?.access_token}`,
+                },
             });
 
-            if (error) throw error;
+            if (response.error) throw response.error;
+            if (response.data?.error) throw new Error(response.data.error);
 
             onSuccess();
             onClose();
