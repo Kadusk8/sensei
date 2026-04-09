@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import { Dashboard, Students, Classes, Financial, PDV, Settings, Login } from './pages';
+import { Dashboard, Students, Classes, Financial, PDV, Settings, Login, ForgotPassword, ResetPassword } from './pages';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function LoadingScreen() {
@@ -35,6 +35,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route element={<PrivateRoute />}>
             <Route element={<Layout />}>

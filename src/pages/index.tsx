@@ -5,3 +5,5 @@ export { Financial } from './Financial';
 export { PDV } from './PDV';
 export { Settings } from './Settings';
 export { Login } from './Login';
+export { ForgotPassword } from './ForgotPassword';
+export { ResetPassword } from './ResetPassword';
