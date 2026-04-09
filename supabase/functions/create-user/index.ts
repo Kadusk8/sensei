@@ -12,7 +12,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verifica se o chamador está autenticado
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -21,46 +20,49 @@ serve(async (req) => {
       })
     }
 
-    // Cliente com service_role para criar usuários
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    // Valida o token do usuário chamador (garante que é admin/secretary)
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    )
+    // Valida o token com service_role (evita usar anon key separado)
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user: caller }, error: authError } = await supabaseClient.auth.getUser(token)
+    const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token)
 
     if (authError || !caller) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+      return new Response(JSON.stringify({ error: 'Invalid token', detail: authError?.message }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
     // Verifica se o chamador tem role admin ou secretary
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', caller.id)
       .single()
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'secretary')) {
-      return new Response(JSON.stringify({ error: 'Forbidden: insufficient permissions' }), {
+    if (profileError || !profile) {
+      return new Response(JSON.stringify({ error: 'Profile not found', detail: profileError?.message }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const { email, password, user_name, user_role } = await req.json()
+    if (profile.role !== 'admin' && profile.role !== 'secretary') {
+      return new Response(JSON.stringify({ error: 'Forbidden: insufficient permissions', role: profile.role }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const body = await req.json()
+    const { email, password, user_name, user_role } = body
 
     if (!email || !password || !user_name || !user_role) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+      return new Response(JSON.stringify({ error: 'Missing required fields', received: Object.keys(body) }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -87,8 +89,8 @@ serve(async (req) => {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err?.message ?? String(err) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
